@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track work sessions, sleep, breaks, and weekly productivity patterns.">
+    <title>WorkFlowLog</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <p class="eyebrow">YOUR PERSONAL PRODUCTIVITY TRACKER</p>
+            <h1>WorkFlowLog</h1>
+            <p class="intro">Track your work sessions, sleep, and breaks to improve your productivity.</p>
+        </div>
+    </header>
+
+    <main class="container dashboard">
+        <section class="panel" aria-labelledby="session-heading">
+            <div class="section-heading">
+                <p class="eyebrow">LOCK IN</p>
+                <h2 id="session-heading">Work Session</h2>
+                <p>Put the full time you plan to work on the assignment and try not to stop.</p>
+            </div>
+
+            <div class="field">
+                <label for="assignment">What are you working on?</label>
+                <input id="assignment" name="assignment" type="text"
+                       placeholder="e.g. Finish that project" autocomplete="off">
+            </div>
+
+            <div class="field">
+                <label for="expected-minutes">Expected work time (minutes)</label>
+                <input id="expected-minutes" name="expected-minutes" type="number"
+                       min="1" step="1" placeholder="60">
+            </div>
+
+            <div class="button-row">
+                <button id="start-session-btn" class="button button-primary" type="button">Start session</button>
+                <button id="end-session-btn" class="button button-secondary" type="button">End session</button>
+            </div>
+            <p id="session-status" class="status" role="status">No active session</p>
+        </section>
+
+        <section class="panel" aria-labelledby="sleep-heading">
+            <div class="section-heading">
+                <p class="eyebrow">REST</p>
+                <h2 id="sleep-heading">Sleep Tracker</h2>
+                <p>Track your sleep to see how it affects your work ethic.</p>
+            </div>
+
+            <div class="field">
+                <label for="sleep-hours">Hours slept</label>
+                <input id="sleep-hours" name="sleep-hours" type="number" min="0" max="24" step="0.25" placeholder="8">
+            </div>
+
+            <div class="field">
+                <label for="sleep-quality">Sleep quality (1–5)</label>
+                <input id="sleep-quality" name="sleep-quality" type="number" min="1" max="5" step="1" placeholder="4">
+            </div>
+
+            <div class="field">
+                <label for="sleep-date">Sleep date</label>
+                <input id="sleep-date" name="sleep-date" type="date">
+            </div>
+
+            <button id="save-sleep-btn" class="button button-primary" type="button">Save sleep record</button>
+            <p id="sleep-status" class="status" role="status">No sleep record saved</p>
+    </section>
+
+        <section class="panel" aria-labelledby="break-heading">
+            <div class="section-heading">
+                <p class="eyebrow">RECOVER</p>
+                <h2 id="break-heading">Break Tracker</h2>
+                <p>Track the time you used for a break.</p>
+            </div>
+
+            <div class="field">
+                <label for="break-note">Break note <span class="optional">(optional)</span></label>
+                <input id="break-note" name="break-note" type="text" placeholder="e.g. I decided to watch a video" autocomplete="off">
+            </div>
+
+            <div class="button-row">
+                <button id="start-break-btn" class="button button-primary" type="button">Start break</button>
+                <button id="end-break-btn" class="button button-secondary" type="button">End break</button>
+            </div>
+            
+            <p id="break-status" class="status" role="status">No active break</p>
+        </section>
+
+        <section class="panel" aria-labelledby="summary-heading">
+            <div class="section-heading">
+                <p class="eyebrow">REFLECT</p>
+                <h2 id="summary-heading">Weekly Summary</h2>
+                <p>Look back at how long you worked compared to the breaks you made.</p>
+            </div>
+
+            <dl class="summary-list">
+                <div><dt>Total work time</dt><dd>Not available yet</dd></div>
+                <div><dt>Sessions completed</dt><dd>Not available yet</dd></div>
+                <div><dt>Average sleep</dt><dd>Not available yet</dd></div>
+                <div><dt>Break time</dt><dd>Not available yet</dd></div>
+            </dl>
+        </section>
+
+        <section class="panel panel-wide" aria-labelledby="insights-heading">
+            <div class="section-heading">
+                <p class="eyebrow">LEARN</p>
+                <h2 id="insights-heading">Productivity Overtime</h2>
+                <p>Look back at your productivity trends over time.</p>
+            </div>
+            <div class="chart-placeholder">
+                <p>Your sleep v. productivity graph will appear here.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>Time doesn't wait for anything. You shouldn't either.</p>
+        </div>
+    </footer>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
