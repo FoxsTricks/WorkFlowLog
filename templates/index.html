@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Track work sessions, sleep, breaks, and weekly productivity patterns.">
+    <meta name="description" content="Track your work sessions, hours of sleep, breaks, and weekly productivity patterns.">
     <title>WorkFlowLog</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <header class="site-header">
@@ -67,7 +68,7 @@
 
             <button id="save-sleep-btn" class="button button-primary" type="button">Save sleep record</button>
             <p id="sleep-status" class="status" role="status">No sleep record saved</p>
-    </section>
+        </section>
 
         <section class="panel" aria-labelledby="break-heading">
             <div class="section-heading">
@@ -97,22 +98,23 @@
             </div>
 
             <dl class="summary-list">
-                <div><dt>Total work time</dt><dd>Not available yet</dd></div>
-                <div><dt>Sessions completed</dt><dd>Not available yet</dd></div>
-                <div><dt>Average sleep</dt><dd>Not available yet</dd></div>
-                <div><dt>Break time</dt><dd>Not available yet</dd></div>
-            </dl>
+            <div><dt>Total work time</dt><dd id="summary-work">—</dd></div>
+            <div><dt>Sessions completed</dt><dd id="summary-sessions">—</dd></div>
+            <div><dt>Average sleep</dt><dd id="summary-sleep">—</dd></div>
+            <div><dt>Break time</dt><dd id="summary-breaks">—</dd></div>
+            <div><dt>Best session</dt><dd id="summary-best">—</dd></div>
+            <div><dt>Worst session</dt><dd id="summary-worst">—</dd></div>
+        </dl>
         </section>
 
         <section class="panel panel-wide" aria-labelledby="insights-heading">
             <div class="section-heading">
                 <p class="eyebrow">LEARN</p>
-                <h2 id="insights-heading">Productivity Overtime</h2>
-                <p>Look back at your productivity trends over time.</p>
+                <h2 id="insights-heading">Productivity Over Time</h2>
+                <p>Look back at your productivity and sleep trends.</p>
             </div>
-            <div class="chart-placeholder">
-                <p>Your sleep v. productivity graph will appear here.</p>
-            </div>
+            <canvas id="sleep-productivity-chart" height="120"></canvas>
+            <canvas id="break-chart" height="120" style="margin-top: 32px;"></canvas>
         </section>
     </main>
 

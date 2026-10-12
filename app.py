@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
 import uuid
 
@@ -126,6 +126,78 @@ def log_sleep():
     data["sleep"].append(sleep_entry)
     write_data(data)
     return jsonify({"status": "sleep_logged"})
+
+@app.route("/get-summary", methods=["GET"])
+def get_summary():
+    data = read_data()
+
+    sessions = [s for s in data["sessions"] if s["duration_minutes"] is not None]
+    sleep_records = data["sleep"]
+
+    total_work = round(sum(s["duration_minutes"] for s in sessions), 2)
+    session_count = len(sessions)
+
+    total_break = 0
+    for s in sessions:
+        for b in s["breaks"]:
+            if b["duration_minutes"] is not None:
+                total_break += b["duration_minutes"]
+    total_break = round(total_break, 2)
+
+    avg_sleep = round(
+        sum(r["hours"] for r in sleep_records) / len(sleep_records), 2
+    ) if sleep_records else None
+
+    best_day = max(sessions, key=lambda s: s["duration_minutes"]) if sessions else None
+    worst_day = min(sessions, key=lambda s: s["duration_minutes"]) if sessions else None
+
+    return jsonify({
+        "total_work_minutes": total_work,
+        "session_count": session_count,
+        "total_break_minutes": total_break,
+        "avg_sleep_hours": avg_sleep,
+        "best_session": best_day["assignment"] if best_day else None,
+        "worst_session": worst_day["assignment"] if worst_day else None
+    })
+
+@app.route("/get-chart-data", methods=["GET"])
+def get_chart_data():
+    data = read_data()
+
+    sessions = [s for s in data["sessions"] if s["duration_minutes"] is not None]
+    sleep_records = {r["date"]: r for r in data["sleep"]}
+
+    sleep_productivity = []
+    for s in sessions:
+        session_date = datetime.fromisoformat(s["start_time"]).date()
+        previous_night = (session_date - timedelta(days=1)).isoformat()
+        sleep = sleep_records.get(previous_night)
+        if sleep:
+            sleep_productivity.append({
+                "date": session_date.isoformat(),
+                "sleep_hours": sleep["hours"],
+                "sleep_quality": sleep.get("quality"),
+                "work_minutes": s["duration_minutes"],
+                "assignment": s["assignment"]
+            })
+
+    break_data = []
+    for s in sessions:
+        date = s["start_time"][:10]
+        total_break = round(sum(
+            b["duration_minutes"] for b in s["breaks"] if b["duration_minutes"] is not None
+        ), 2)
+        break_data.append({
+            "date": date,
+            "assignment": s["assignment"],
+            "work_minutes": s["duration_minutes"],
+            "break_minutes": total_break
+        })
+
+    return jsonify({
+        "sleep_productivity": sleep_productivity,
+        "breaks": break_data
+    })
 
 if __name__ == "__main__":
     app.run(debug=True)

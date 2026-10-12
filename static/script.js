@@ -63,6 +63,8 @@ endBtn.addEventListener("click", function () {
     .then(data => {
         sessionStatus.innerText = "Session ended. Duration: " + data.duration_minutes + " minutes.";
         activeSessionId = null;
+        loadSummary();
+        loadCharts();
     })
     .catch(err => { sessionStatus.innerText = err.message; });
 });
@@ -114,6 +116,8 @@ endBreakBtn.addEventListener("click", function () {
     .then(data => {
         breakStatus.innerText = "Break ended. Duration: " + data.duration_minutes + " minutes.";
         activeBreakId = null;
+        loadSummary();
+        loadCharts();
     })
     .catch(err => { breakStatus.innerText = err.message; });
 });
@@ -139,6 +143,107 @@ saveSleepBtn.addEventListener("click", function () {
     })
     .then(() => {
         sleepStatus.innerText = "Sleep record saved for " + date + ".";
+        loadSummary();
+        loadCharts();
     })
     .catch(err => { sleepStatus.innerText = err.message; });
 });
+
+function loadSummary() {
+    fetch("/get-summary")
+    .then(res => res.json())
+    .then(data => {
+        document.getElementById("summary-work").innerText =
+            data.total_work_minutes !== null ? data.total_work_minutes + " min" : "—";
+        document.getElementById("summary-sessions").innerText =
+            data.session_count !== null ? data.session_count : "—";
+        document.getElementById("summary-sleep").innerText =
+            data.avg_sleep_hours !== null ? data.avg_sleep_hours + " hrs" : "—";
+        document.getElementById("summary-breaks").innerText =
+            data.total_break_minutes !== null ? data.total_break_minutes + " min" : "—";
+        document.getElementById("summary-best").innerText =
+            data.best_session || "—";
+        document.getElementById("summary-worst").innerText =
+            data.worst_session || "—";
+    });
+}
+
+function loadCharts() {
+    fetch("/get-chart-data")
+    .then(res => res.json())
+    .then(data => {
+        const spData = data.sleep_productivity;
+        const bData = data.breaks;
+
+        const spCanvas = document.getElementById("sleep-productivity-chart");
+        const bCanvas = document.getElementById("break-chart");
+
+        if (window.spChart) window.spChart.destroy();
+        if (window.bChart) window.bChart.destroy();
+
+        window.spChart = new Chart(spCanvas, {
+            type: "bar",
+            data: {
+                labels: spData.map(d => d.date + " — " + d.assignment),
+                datasets: [
+                    {
+                        label: "Sleep Hours",
+                        data: spData.map(d => d.sleep_hours),
+                        backgroundColor: "rgba(97, 255, 83, 0.5)",
+                        borderColor: "#61ff53",
+                        borderWidth: 1
+                    },
+                    {
+                        label: "Work Minutes",
+                        data: spData.map(d => d.work_minutes),
+                        backgroundColor: "rgba(255, 255, 255, 0.15)",
+                        borderColor: "#ffffff",
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels: { color: "#ffffffd2" } } },
+                scales: {
+                    x: { ticks: { color: "#bbbbbb" }, grid: { color: "#003b05" } },
+                    y: { ticks: { color: "#bbbbbb" }, grid: { color: "#003b05" } }
+                }
+            }
+        });
+
+        window.bChart = new Chart(bCanvas, {
+            type: "bar",
+            data: {
+                labels: bData.map(d => d.date + " — " + d.assignment),
+                datasets: [
+                    {
+                        label: "Work Minutes",
+                        data: bData.map(d => d.work_minutes),
+                        backgroundColor: "rgba(97, 255, 83, 0.5)",
+                        borderColor: "#61ff53",
+                        borderWidth: 1
+                    },
+                    {
+                        label: "Break Minutes",
+                        data: bData.map(d => d.break_minutes),
+                        backgroundColor: "rgba(255, 100, 100, 0.4)",
+                        borderColor: "#ff6464",
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { labels: { color: "#ffffffd2" } } },
+                scales: {
+                    x: { ticks: { color: "#bbbbbb" }, grid: { color: "#003b05" } },
+                    y: { ticks: { color: "#bbbbbb" }, grid: { color: "#003b05" } }
+                }
+            }
+        });
+    });
+}
+
+loadSummary();
+loadCharts();
